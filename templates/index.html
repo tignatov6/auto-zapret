@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Auto-Zapret{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3>{{ stats.total_strategies }}</h3>
+            <p>Стратегий</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3>{{ stats.total_domains }}</h3>
+            <p>Доменов</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3>{{ stats.active_domains }}</h3>
+            <p>Активных</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3>{{ stats.total_events }}</h3>
+            <p>Событий</p>
+        </div>
+    </div>
+</div>
+
+<!-- Events by Type -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5><i class="bi bi-graph-up"></i> События по типам</h5>
+            <table class="table table-sm mt-3">
+                <thead>
+                    <tr>
+                        <th>Тип</th>
+                        <th>Количество</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event_type, count in stats.events_by_type.items() %}
+                    <tr>
+                        <td>
+                            {% if event_type == 'success' %}
+                                <span class="badge badge-success">{{ event_type }}</span>
+                            {% elif event_type == 'fail' %}
+                                <span class="badge badge-danger">{{ event_type }}</span>
+                            {% elif event_type == 'applied' %}
+                                <span class="badge badge-info">{{ event_type }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">{{ event_type }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="table-container">
+            <h5><i class="bi bi-clock-history"></i> Последние события</h5>
+            <table class="table table-sm mt-3">
+                <thead>
+                    <tr>
+                        <th>Домен</th>
+                        <th>Событие</th>
+                        <th>Время</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in stats.recent_events[:5] %}
+                    <tr>
+                        <td>{{ event.domain }}</td>
+                        <td>
+                            {% if event.event_type == 'success' %}
+                                <span class="badge badge-success">{{ event.event_type }}</span>
+                            {% elif event.event_type == 'fail' %}
+                                <span class="badge badge-danger">{{ event.event_type }}</span>
+                            {% else %}
+                                <span class="badge badge-info">{{ event.event_type }}</span>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ event.timestamp }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="table-container">
+            <h5><i class="bi bi-lightning-charge"></i> Быстрые действия</h5>
+            <div class="mt-3">
+                <button class="btn btn-primary me-2" onclick="reloadNfqws()">
+                    <i class="bi bi-arrow-clockwise"></i> Перезагрузить nfqws
+                </button>
+                <a href="/domains" class="btn btn-success me-2">
+                    <i class="bi bi-plus-circle"></i> Добавить домен
+                </a>
+                <a href="/strategies" class="btn btn-info text-white">
+                    <i class="bi bi-plus-circle"></i> Добавить стратегию
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Strategies -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="table-container">
+            <h5><i class="bi bi-layers"></i> Топ стратегий</h5>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Приоритет</th>
+                        <th>Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for strategy in strategies[:5] %}
+                    <tr>
+                        <td><strong>{{ strategy.name }}</strong></td>
+                        <td>
+                            {% if strategy.priority <= 10 %}
+                                <span class="badge badge-success">Высокий ({{ strategy.priority }})</span>
+                            {% elif strategy.priority <= 50 %}
+                                <span class="badge badge-warning">Средний ({{ strategy.priority }})</span>
+                            {% else %}
+                                <span class="badge badge-danger">Низкий ({{ strategy.priority }})</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ strategy.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Logs Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="table-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5><i class="bi bi-journal-text"></i> Последние события</h5>
+                <a href="/logs" class="btn btn-sm btn-outline-primary">Все логи →</a>
+            </div>
+            <div id="dashboardLogs" style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Время</th>
+                            <th>Тип</th>
+                            <th>Домен</th>
+                            <th>Сообщение</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardLogsTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const eventIcons = {
+    'fail_counter': '🔴',
+    'threshold_reached': '⚠️',
+    'cooldown': '⏰',
+    'checking_existing': '🔍',
+    'testing_strategy': '🧪',
+    'strategy_found': '✅',
+    'brute_force_start': '🚀',
+    'brute_force_attempt': '⚙️',
+    'brute_force_success': '🎉',
+    'brute_force_failed': '❌',
+    'strategy_created': '✨',
+    'cooldown_set': '⏸️',
+    'default': '📝'
+};
+
+const eventColors = {
+    'fail_counter': 'danger',
+    'threshold_reached': 'warning',
+    'cooldown': 'secondary',
+    'strategy_found': 'success',
+    'brute_force_success': 'success',
+    'strategy_created': 'success',
+    'brute_force_failed': 'danger',
+    'cooldown_set': 'warning',
+    'default': 'info'
+};
+
+async function loadDashboardLogs() {
+    try {
+        const response = await fetch('/api/logs?limit=10');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('dashboardLogsTable');
+        const logs = data.logs.reverse();
+        
+        tbody.innerHTML = '';
+        
+        logs.forEach(log => {
+            const row = document.createElement('tr');
+            const icon = eventIcons[log.type] || eventIcons['default'];
+            const color = eventColors[log.type] || eventColors['default'];
+            
+            row.innerHTML = `
+                <td><small class="text-muted">${formatTime(log.timestamp)}</small></td>
+                <td><span class="badge bg-${color}">${icon} ${log.type}</span></td>
+                <td><strong>${log.domain || '-'}</strong></td>
+                <td>${log.message || ''}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading dashboard logs:', error);
+    }
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+    });
+}
+
+async function reloadNfqws() {
+    if (!confirm('Перезагрузить конфигурацию nfqws?')) return;
+    
+    try {
+        const response = await fetch('/api/actions/reload', { method: 'POST' });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✓ ' + data.message);
+            setTimeout(loadDashboardLogs, 1000);
+        } else {
+            alert('✗ Ошибка: ' + data.detail);
+        }
+    } catch (error) {
+        alert('✗ Ошибка: ' + error.message);
+    }
+}
+
+// Загрузка при старте
+loadDashboardLogs();
+
+// Авто-обновление каждые 5 секунд
+setInterval(loadDashboardLogs, 5000);
+</script>
+{% endblock %}

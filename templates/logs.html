@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}Логи - Auto-Zapret{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-journal-text"></i> Логи событий</h1>
+    <div>
+        <button class="btn btn-sm btn-outline-primary me-2" onclick="loadLogs()">
+            <i class="bi bi-arrow-clockwise"></i> Обновить
+        </button>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+            <label class="form-check-label" for="autoRefresh">Авто-обновление</label>
+        </div>
+    </div>
+</div>
+
+<!-- DPI Check Tool -->
+<div class="table-container mb-4">
+    <h5><i class="bi bi-shield-exclamation"></i> Проверка домена на DPI блокировку</h5>
+    <div class="row g-3 mt-1">
+        <div class="col-md-8">
+            <input type="text" class="form-control" id="dpiCheckDomain" placeholder="example.com">
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100" onclick="checkDPI()" id="checkDPIBtn">
+                <i class="bi bi-search"></i> Проверить
+            </button>
+        </div>
+    </div>
+    
+    <div id="dpiCheckResult" class="mt-3" style="display:none;">
+        <!-- Результаты будут здесь -->
+    </div>
+</div>
+
+<!-- Simulate Events -->
+<div class="table-container mb-4">
+    <h5><i class="bi bi-play-circle"></i> Симуляция событий (для тестирования)</h5>
+    <div class="row g-3 mt-1">
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="simDomain" placeholder="example.com">
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" id="simEventType">
+                <option value="fail_counter">Fail Counter</option>
+                <option value="threshold_reached">Threshold Reached</option>
+                <option value="strategy_found">Strategy Found</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="number" class="form-control" id="simCounter" placeholder="Counter" value="1">
+        </div>
+        <div class="col-md-2">
+            <input type="number" class="form-control" id="simThreshold" placeholder="Threshold" value="3">
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-outline-primary w-100" onclick="simulateEvent()">
+                <i class="bi bi-play"></i> Симулировать
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Section -->
+<div id="progressSection" class="mb-4" style="display:none;">
+    <h5><i class="bi bi-hourglass-split"></i> Активный подбор стратегий</h5>
+    <div id="progressContainer"></div>
+</div>
+
+<!-- Logs Section -->
+<div class="table-container">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <span class="badge bg-success" id="liveIndicator">● LIVE</span>
+            <span class="ms-2 text-muted">Последние <span id="logCount">0</span> записей</span>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-primary active" onclick="filterLogs('all')">Все</button>
+                <button type="button" class="btn btn-outline-danger" onclick="filterLogs('fail')">🔴 Fail</button>
+                <button type="button" class="btn btn-outline-warning" onclick="filterLogs('threshold')">⚠️ Threshold</button>
+                <button type="button" class="btn btn-outline-success" onclick="filterLogs('success')">✅ Success</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="filterLogs('cooldown')">⏰ Cooldown</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="logsContainer" style="max-height: 600px; overflow-y: auto;">
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Тип</th>
+                    <th>Домен</th>
+                    <th>Протокол</th>
+                    <th>Сообщение</th>
+                </tr>
+            </thead>
+            <tbody id="logsTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let lastLogId = 0;
+let autoRefreshInterval = null;
+let currentFilter = 'all';
+let allLogs = [];  // Храним все логи для фильтрации
+
+// Иконки для типов событий
+const eventIcons = {
+    'fail_counter': '🔴',
+    'threshold_reached': '⚠️',
+    'cooldown': '⏰',
+    'checking_existing': '🔍',
+    'testing_strategy': '🧪',
+    'strategy_found': '✅',
+    'brute_force_start': '🚀',
+    'brute_force_attempt': '⚙️',
+    'brute_force_progress': '📊',
+    'brute_force_success': '🎉',
+    'brute_force_failed': '❌',
+    'strategy_created': '✨',
+    'cooldown_set': '⏸️',
+    'default': '📝'
+};
+
+// Цвета для типов событий
+const eventColors = {
+    'fail_counter': 'danger',
+    'threshold_reached': 'warning',
+    'cooldown': 'secondary',
+    'strategy_found': 'success',
+    'brute_force_success': 'success',
+    'strategy_created': 'success',
+    'brute_force_failed': 'danger',
+    'cooldown_set': 'warning',
+    'checking_existing': 'info',
+    'testing_strategy': 'info',
+    'default': 'info'
+};
+
+// Категории для фильтрации
+const filterCategories = {
+    'fail': ['fail_counter'],
+    'threshold': ['threshold_reached'],
+    'success': ['strategy_found', 'brute_force_success', 'strategy_created'],
+    'cooldown': ['cooldown', 'cooldown_set'],
+    'all': []  // Все события
+};
+
+function filterLogs(filter) {
+    currentFilter = filter;
+    
+    // Обновляем активную кнопку
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Перерисовываем логи
+    renderLogs(allLogs);
+}
+
+function filterLogByType(logType) {
+    if (currentFilter === 'all') return true;
+    const category = filterCategories[currentFilter];
+    return category.includes(logType);
+}
+
+// Статусы DPI
+const dpiStatusColors = {
+    'not_checked': 'secondary',
+    'no_dpi': 'success',
+    'dpi_detected': 'danger',
+    'ip_blocked': 'danger',
+    'dns_blocked': 'warning',
+    'error': 'danger'
+};
+
+const dpiStatusIcons = {
+    'not_checked': '❓',
+    'no_dpi': '✅',
+    'dpi_detected': '🔴',
+    'ip_blocked': '🚫',
+    'dns_blocked': '⚠️',
+    'error': '❌'
+};
+
+async function checkDPI() {
+    const domain = document.getElementById('dpiCheckDomain').value.trim();
+    if (!domain) {
+        alert('Введите домен');
+        return;
+    }
+    
+    const btn = document.getElementById('checkDPIBtn');
+    const resultDiv = document.getElementById('dpiCheckResult');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Проверка...';
+    resultDiv.style.display = 'none';
+    
+    try {
+        const response = await fetch('/api/actions/check-dpi?domain=' + encodeURIComponent(domain), {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Request failed: ' + response.status);
+        }
+        
+        const result = await response.json();
+        
+        // Отображаем результат
+        const statusColor = dpiStatusColors[result.status] || 'secondary';
+        const statusIcon = dpiStatusIcons[result.status] || '❓';
+        
+        resultDiv.innerHTML = `
+            <div class="alert alert-${statusColor}">
+                <h6 class="alert-heading">
+                    ${statusIcon} Статус: ${result.status}
+                </h6>
+                ${result.method ? `<p><strong>Метод обнаружения:</strong> ${result.method}</p>` : ''}
+                ${result.zapret_params ? `<p><strong>Рекомендуемые параметры:</strong> <code>${result.zapret_params}</code></p>` : ''}
+                ${result.error ? `<p class="mb-0 text-danger"><strong>Ошибка:</strong> ${result.error}</p>` : ''}
+                <p class="mb-0"><small>Проверено: ${new Date(result.checked_at).toLocaleString()}</small></p>
+            </div>
+        `;
+        resultDiv.style.display = 'block';
+        
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Ошибка:</strong> ${error.message}
+            </div>
+        `;
+        resultDiv.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> Проверить';
+    }
+}
+
+async function simulateEvent() {
+    const domain = document.getElementById('simDomain').value.trim();
+    if (!domain) {
+        alert('Введите домен');
+        return;
+    }
+    
+    const eventType = document.getElementById('simEventType').value;
+    const counter = parseInt(document.getElementById('simCounter').value) || 1;
+    const threshold = parseInt(document.getElementById('simThreshold').value) || 3;
+    
+    try {
+        const response = await fetch(`/api/actions/simulate-event?domain=${encodeURIComponent(domain)}&event_type=${eventType}&counter=${counter}&threshold=${threshold}`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Request failed: ' + response.status);
+        }
+        
+        const result = await response.json();
+        
+        // Обновляем логи сразу
+        await loadLogs();
+        
+        // Показываем уведомление
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+        alertDiv.innerHTML = `
+            ✓ ${result.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.table-container.mb-4');
+        container.parentNode.insertBefore(alertDiv, container.nextSibling);
+        
+        // Автоматически закрываем через 3 секунды
+        setTimeout(() => alertDiv.remove(), 3000);
+        
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+    }
+}
+
+async function loadLogs() {
+    try {
+        const response = await fetch('/api/logs?limit=100');
+        const data = await response.json();
+        
+        const logs = data.logs.reverse(); // Новые сверху
+        
+        // Сохраняем все логи
+        allLogs = logs;
+        
+        document.getElementById('logCount').textContent = logs.length;
+        
+        // Перерисовываем с учётом фильтра
+        renderLogs(logs);
+        
+    } catch (error) {
+        console.error('Error loading logs:', error);
+    }
+}
+
+function renderLogs(logs) {
+    const tbody = document.getElementById('logsTable');
+    
+    // Очищаем таблицу
+    tbody.innerHTML = '';
+    
+    logs.forEach((log, index) => {
+        // Применяем фильтр
+        if (!filterLogByType(log.type)) return;
+        
+        const row = document.createElement('tr');
+        const icon = eventIcons[log.type] || eventIcons['default'];
+        const color = eventColors[log.type] || eventColors['default'];
+        
+        // Протокол (если есть)
+        const protocol = log.protocol || (log.type === 'fail_counter' ? 'TLS' : '');
+        
+        row.innerHTML = `
+            <td><small class="text-muted">${formatTime(log.timestamp)}</small></td>
+            <td><span class="badge bg-${color}">${icon} ${log.type}</span></td>
+            <td><strong>${log.domain || '-'}</strong></td>
+            <td><small class="text-muted">${protocol}</small></td>
+            <td>${log.message || log.details || ''}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+async function loadProgress() {
+    try {
+        const response = await fetch('/api/progress');
+        const data = await response.json();
+
+        const container = document.getElementById('progressContainer');
+        const section = document.getElementById('progressSection');
+
+        // Показываем только активные (in_progress)
+        // Завершённые автоматически скрываются
+        const activeProgress = Object.values(data.progress).filter(
+            p => p && p.status === 'in_progress'
+        );
+
+        if (activeProgress.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        container.innerHTML = '';
+
+        activeProgress.forEach(progress => {
+            const percent = progress.total ? Math.round((progress.current / progress.total) * 100) : 0;
+            
+            // Прогресс бар только анимированный для активных
+            const progressBarClass = 'progress-bar-striped progress-bar-animated';
+            
+            const card = document.createElement('div');
+            card.className = 'card mb-2';
+            card.innerHTML = `
+                <div class="card-body py-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="badge bg-info">⏳ in_progress</span>
+                                    <strong class="ms-2">${progress.domain}</strong>
+                                    ${progress.mode ? `<span class="badge bg-secondary ms-1">${progress.mode}</span>` : ''}
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">${progress.current}/${progress.total || '?'}</span>
+                                    <button class="btn btn-sm btn-outline-danger ms-2"
+                                            onclick="stopBruteForce('${progress.domain}')"
+                                            title="Остановить перебор">
+                                        <i class="bi bi-stop-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar ${progressBarClass}"
+                             style="width: ${percent}%"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <small class="text-muted">
+                                ${progress.current_strategy ? `<strong>Текущая:</strong> <code class="text-break">${progress.current_strategy.substring(0, 80)}${progress.current_strategy.length > 80 ? '...' : ''}</code><br>` : ''}
+                                ${progress.phase ? `<strong>Фаза:</strong> ${progress.current_phase || '?'}<br>` : ''}
+                                ${progress.total_tested ? `<strong>Всего тестов:</strong> ${progress.total_tested}<br>` : ''}
+                                ${progress.total_found ? `<strong>Найдено:</strong> ${progress.total_found} рабочих` : ''}
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <small class="text-muted">
+                                ${progress.started ? `<strong>Начато:</strong> ${formatTime(progress.started)}` : ''}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Error loading progress:', error);
+    }
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
+// Остановка перебора стратегий
+async function stopBruteForce(domain) {
+    if (!confirm(`Остановить перебор стратегий для ${domain}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/brute_force/stop/${encodeURIComponent(domain)}`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Принудительно обновляем прогресс
+            await loadProgress();
+            alert(`Перебор стратегий для ${domain} остановлен`);
+        } else {
+            alert(`Ошибка: ${result.error || 'Неизвестная ошибка'}`);
+        }
+    } catch (error) {
+        console.error('Error stopping brute force:', error);
+        alert('Ошибка при остановке перебора');
+    }
+}
+
+// Авто-обновление
+function toggleAutoRefresh() {
+    const checkbox = document.getElementById('autoRefresh');
+    const indicator = document.getElementById('liveIndicator');
+    
+    if (checkbox.checked) {
+        indicator.style.display = 'inline';
+        startAutoRefresh();
+    } else {
+        indicator.style.display = 'none';
+        stopAutoRefresh();
+    }
+}
+
+function startAutoRefresh() {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(() => {
+        loadLogs();
+        loadProgress();
+    }, 1000); // Обновление каждую секунду
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('autoRefresh').addEventListener('change', toggleAutoRefresh);
+    
+    // Первая загрузка
+    loadLogs();
+    loadProgress();
+    
+    // Запуск авто-обновления
+    startAutoRefresh();
+});
+</script>
+{% endblock %}
