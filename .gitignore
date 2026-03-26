@@ -58,20 +58,22 @@ data/*.db-journal
 Thumbs.db
 desktop.ini
 
-# Project specific
+# Project specific - Working files
 data/zapret-hosts-auto.txt
 data/strat-*.txt
+data/temp_test_ipset.txt
 config/strategies.json
 config/ultimate_strategies.json
 
-# WinDivert driver (binary)
-*.sys
-*.dll
+# AI Assistant skills (not part of the project)
+.minimax/
 
-# Zapret binaries
+# External projects (not part of auto-zapret)
+InternetFix/
+
+# Zapret source and binaries (download separately)
 zapret-src/
-bin/*.exe
-bin/*.dll
+zapret-v72.12.zip
 
 # Temporary files
 tmp/
@@ -129,3 +131,14 @@ coverage.xml
 # Backup files
 *.old
 *.backup
+
+# Windows shortcuts
+*.lnk
+
+# Test scripts (not part of main codebase)
+test_*.py
+debug_*.py
+smart_tuner.py
+cd
+Ultimate F.bat
+start-auto-zapret.bat
