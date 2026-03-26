@@ -4,6 +4,8 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/tignatov6/auto-zapret)](https://github.com/tignatov6/auto-zapret/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/tignatov6/auto-zapret)](https://github.com/tignatov6/auto-zapret/issues)
 
 ## Описание
 
@@ -23,6 +25,20 @@ Auto-Zapret автоматически:
 3. **Подбирает** новую стратегию перебором 600+ вариантов (если существующие не работают)
 4. **Применяет** рабочую стратегию без перезапуска службы
 5. **Запоминает** выбор для будущего использования
+
+---
+
+## Зависимости
+
+### Включены в репозиторий:
+- ✅ `bin/winws.exe` — WinWS DPI circumvention tool (Windows)
+- ✅ `bin/WinDivert64.sys` — WinDivert driver для перехвата пакетов
+- ✅ `bin/*.dll` — Required DLLs (WinDivert, Cygwin)
+- ✅ `files/fake/*.bin` — Шаблоны фейк-пакетов для тестирования стратегий
+
+### Требуется установить:
+- 🔧 **Python 3.10+** — интерпретатор Python
+- 🔧 **Zapret** (опционально) — nfqws для Linux (для Windows используется встроенный winws)
 
 ---
 
