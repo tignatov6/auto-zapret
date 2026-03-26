@@ -50,19 +50,17 @@ coverage.xml
 # Logs
 *.log
 logs/
-data/autozapret.db
-data/*.db-journal
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
+# Trash folder (old/unused files)
+trash/
+
 # Project specific - Working files
 data/
-data/zapret-hosts-auto.txt
-data/strat-*.txt
-data/temp_test_ipset.txt
 config/strategies.json
 config/ultimate_strategies.json
 
@@ -86,7 +84,6 @@ temp/
 
 # Documentation builds
 *.pdf
-docs/_build/
 
 # Node (if using any JS tooling)
 node_modules/

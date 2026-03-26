@@ -1,0 +1,217 @@
+[     616ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8000/favicon.ico:0
+[  419930ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  419930ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  419931ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  419931ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  420189ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  420189ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  422245ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  422245ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  422245ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  422245ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  422505ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  422505ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  424557ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  424557ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  424557ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  424557ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  424816ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  424816ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  426877ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  426877ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  426877ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  426877ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  427137ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  427137ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  429200ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  429200ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  429201ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  429201ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  429460ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  429460ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  431520ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  431520ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  431520ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  431520ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  431779ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  431779ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  433832ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  433832ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  433832ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  433832ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  434090ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  434090ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at HTMLButtonElement.onclick (http://localhost:8000/logs:94:82) @ http://localhost:8000/logs:398
+[  436143ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  436143ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  436144ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  436144ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  436402ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  436402ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  438461ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  438461ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  438461ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  438461ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  438720ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  438720ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  440774ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  440774ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  440775ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  440775ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  441034ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  441034ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  443088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  443088ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  443088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  443088ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  443346ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  443346ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  445403ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  445403ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  445403ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  445403ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  445661ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  445661ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  447713ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  447713ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  447713ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  447713ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  447971ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  447971ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  450028ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  450028ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  450029ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  450029ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  450288ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  450288ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  452341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  452341ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  452341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  452341ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  452599ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  452599ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  454653ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  454653ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  454653ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  454653ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  454911ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  454911ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  456965ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  456965ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  456965ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  456965ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  457224ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  457224ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  459285ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  459285ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477
+[  459285ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/logs?limit=100:0
+[  459285ms] [ERROR] Error loading logs: TypeError: Failed to fetch
+    at loadLogs (http://localhost:8000/logs:385:32)
+    at http://localhost:8000/logs:509:9 @ http://localhost:8000/logs:398
+[  459545ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8000/api/progress:0
+[  459545ms] [ERROR] Error loading progress: TypeError: Failed to fetch
+    at loadProgress (http://localhost:8000/logs:434:32)
+    at http://localhost:8000/logs:510:9 @ http://localhost:8000/logs:477

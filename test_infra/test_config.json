@@ -1,0 +1,34 @@
+# Test configuration for Auto-Zapret
+
+{
+    "nfqws_pid_file": "/tmp/test_nfqws.pid",
+    "nfqws_log_file": "logs/test_autohostlist.log",
+    "hostlists_dir": "test_data/hostlists",
+    "auto_hostlist_file": "test-auto.txt",
+    "strategy_prefix": "test-strat-",
+    "fail_threshold": 3,
+    "retrans_threshold": 3,
+    "signal_cooldown_seconds": 1,
+    "database_path": "test_data/test_autozapret.db",
+    "log_level": "DEBUG",
+    "strategies": [
+        {
+            "name": "test_youtube",
+            "description": "Test strategy for YouTube",
+            "zapret_params": "--dpi-desync=fake,multisplit",
+            "priority": 1
+        },
+        {
+            "name": "test_discord",
+            "description": "Test strategy for Discord",
+            "zapret_params": "--dpi-desync=split --disorder",
+            "priority": 2
+        },
+        {
+            "name": "test_default",
+            "description": "Test default strategy",
+            "zapret_params": "--dpi-desync=fake",
+            "priority": 99
+        }
+    ]
+}
