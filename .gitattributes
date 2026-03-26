@@ -1,0 +1,47 @@
+# Auto-detect text files and perform newline normalization
+* text=auto
+
+# Explicitly declare source files to use LF line endings
+*.py text eol=lf
+*.sh text eol=lf
+*.service text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ini text eol=lf
+*.toml text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+
+# Windows batch files should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# HTML/CSS/JS templates
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Shell scripts must have LF for Unix compatibility
+blockcheck.sh text eol=lf
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.sys binary
+*.dll binary
+*.exe binary
+*.zip binary
+*.pyc binary
+*.db binary
