@@ -1,0 +1,9 @@
+{
+    "log_level": "INFO",
+    "strategy_cooldown_minutes": 30,
+    "bruteforce_cooldown_minutes": 60,
+    "analysis_max_parallel": 5,
+    "monitor_replay_existing_logs": false,
+    "brute_force_mode": "first_working",
+    "brute_force_quick_mode": true
+}

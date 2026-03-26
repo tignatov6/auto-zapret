@@ -1,0 +1,22 @@
+# Auto-Zapret dependencies
+
+# Core
+aiosqlite>=0.19.0
+aiofiles>=23.0.0
+click>=8.1.0
+
+# Web UI & API
+fastapi>=0.109.0
+uvicorn>=0.27.0
+jinja2>=3.1.0
+python-multipart>=0.0.6
+httpx>=0.24.0  # For testing (starlette.testclient)
+aiohttp>=3.9.0  # For strategy testing (real HTTPS requests)
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Utilities
+python-dateutil>=2.8.0
