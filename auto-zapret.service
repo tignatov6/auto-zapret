@@ -1,0 +1,25 @@
+[Unit]
+Description=Auto-Zapret Web API
+After=network.target zapret.service
+Wants=zapret.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/auto-zapret
+Environment="PATH=/usr/bin:/usr/local/bin"
+ExecStart=/usr/bin/python3 -m autozapret.main serve --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=auto-zapret
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
