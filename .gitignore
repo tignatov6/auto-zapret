@@ -59,6 +59,7 @@ Thumbs.db
 desktop.ini
 
 # Project specific - Working files
+data/
 data/zapret-hosts-auto.txt
 data/strat-*.txt
 data/temp_test_ipset.txt
