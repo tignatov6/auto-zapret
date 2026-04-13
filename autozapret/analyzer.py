@@ -25,7 +25,8 @@ from .storage import Storage, Strategy, StatEvent
 from .monitor import AutoHostlistEvent, EventType
 from .executor import Executor
 from .dpi_detector import DPIDetector, DPIStatus, get_detector
-from .helpers import normalize_domain, canonicalize_params
+from .helpers import normalize_domain, canonicalize_params, is_ip_address
+from .ip_monitor import IPMonitor, IPEvent, IPEventType, get_monitor as get_ip_monitor
 from .strategy_tester import StrategyTester, StrategyTestStatus as TesterStatus, get_tester as get_strategy_tester
 from .strategy_generator import StrategyGenerator, get_generator as get_strategy_generator
 from .blockcheck_selector import (
@@ -213,6 +214,15 @@ class Analyzer:
         self._bruteforce_lock = asyncio.Lock()
         self._bruteforce_queue: List[str] = []  # Очередь доменов
         self._current_bruteforce_domain: Optional[str] = None
+        
+        # IP Monitor для приложений без SNI (Discord, игры)
+        if self.config.ip_monitor_enabled:
+            self.ip_monitor = get_ip_monitor(self.config)
+            self.ip_monitor.register_callback(self._handle_ip_event)
+            logger.info("IP Monitor registered with Analyzer")
+        else:
+            self.ip_monitor = None
+            logger.info("IP Monitor disabled")
 
     @profiler
     async def shutdown(self) -> None:
@@ -248,6 +258,47 @@ class Analyzer:
             await self._handle_fail_reset(event)
         elif event.event_type == EventType.DOMAIN_NOT_ADDED:
             logger.debug(f"Domain {event.domain} not added (duplicate)")
+        # IP события от IP Monitor
+        elif event.event_type in (EventType.IP_FAIL_COUNTER, EventType.IP_FAIL_RESET, EventType.IP_DOMAIN_ADDED):
+            logger.debug(f"IP event received: {event.event_type}")
+
+    @profiler
+    async def _handle_ip_event(self, ip_event: IPEvent) -> None:
+        """
+        Обработка IP события от IPMonitor
+        
+        Конвертирует IPEvent в AutoHostlistEvent и обрабатывает как обычный fail
+        """
+        if ip_event.event_type == IPEventType.FAIL_COUNTER:
+            logger.info(f"IP {ip_event.ip}:{ip_event.port} ({ip_event.app}) fail counter: {ip_event.fail_counter}")
+            
+            # Используем IP как "домен" для хранения в БД
+            domain_key = f"ip:{ip_event.ip}:{ip_event.port}"
+            
+            # Создаём фейковый AutoHostlistEvent для совместимости
+            event = AutoHostlistEvent(
+                event_type=EventType.IP_FAIL_COUNTER,
+                domain=domain_key,
+                profile_id=0,
+                client=f"app:{ip_event.app}",
+                protocol=ip_event.protocol,
+                fail_counter=ip_event.fail_counter,
+                fail_threshold=ip_event.fail_threshold,
+            )
+            
+            await self._handle_fail_counter(event)
+            
+        elif ip_event.event_type == IPEventType.FAIL_RESET:
+            logger.info(f"IP {ip_event.ip}:{ip_event.port} ({ip_event.app}) fail reset")
+            domain_key = f"ip:{ip_event.ip}:{ip_event.port}"
+            event = AutoHostlistEvent(
+                event_type=EventType.IP_FAIL_RESET,
+                domain=domain_key,
+                profile_id=0,
+                client=f"app:{ip_event.app}",
+                protocol=ip_event.protocol,
+            )
+            await self._handle_fail_reset(event)
 
     @profiler
     async def _handle_fail_counter(self, event: AutoHostlistEvent) -> None:

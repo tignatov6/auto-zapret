@@ -104,6 +104,15 @@ class AutoZapretApp:
         self.monitor.register_callback(self.analyzer.handle_event)
         logger.info("Registered analyzer callback")
 
+        # Запуск IP Monitor для приложений без SNI
+        if self.config.ip_monitor_enabled and self.analyzer.ip_monitor:
+            logger.info("Starting IP Monitor in background...")
+            self._ip_monitor_task = asyncio.create_task(self.analyzer.ip_monitor.start())
+            logger.info("IP Monitor started")
+        else:
+            self._ip_monitor_task = None
+            logger.info("IP Monitor not enabled")
+
         # Очищаем autohostlist файл при старте
         await self._clear_autohostlist()
 
@@ -167,18 +176,30 @@ class AutoZapretApp:
         self.monitor: Optional[Monitor] = None
         self._running = False
         self._autohostlist_cleanup_task: Optional[asyncio.Task] = None
+        self._ip_monitor_task: Optional[asyncio.Task] = None  # IP Monitor task
 
     @profiler
     async def shutdown(self) -> None:
         """Корректное завершение работы"""
         logger.info("Shutting down Auto-Zapret...")
 
-        # 0. Останавливаем periodic cleanup
+        # 0. Останавливаем periodic cleanup и IP Monitor
         self._running = False
         if self._autohostlist_cleanup_task:
             self._autohostlist_cleanup_task.cancel()
             try:
                 await self._autohostlist_cleanup_task
+            except asyncio.CancelledError:
+                pass
+        
+        # Останавливаем IP Monitor
+        if self._ip_monitor_task and not self._ip_monitor_task.done():
+            logger.info("Stopping IP Monitor...")
+            if self.analyzer.ip_monitor:
+                self.analyzer.ip_monitor.stop()
+            self._ip_monitor_task.cancel()
+            try:
+                await self._ip_monitor_task
             except asyncio.CancelledError:
                 pass
 

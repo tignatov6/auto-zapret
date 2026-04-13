@@ -46,6 +46,15 @@ class Config:
     brute_force_mode: str = "first_working"  # "first_working" или "all_best"
     brute_force_quick_mode: bool = True  # Быстрый режим (меньше тестов)
 
+    # IP-мониторинг для приложений без SNI (Discord, игры и т.д.)
+    ip_monitor_enabled: bool = True
+    ip_monitor_interval: int = 5  # Секунды между проверками
+    ip_monitor_fail_threshold: int = 3  # Количество неудач для триггера
+    ip_monitor_retrans_threshold: int = 5  # Ретрансмиссий для детекта проблемы
+    # Целевые IP для мониторинга (список dict)
+    # Формат: [{"ip": "162.159.128.0/24", "port": 443, "proto": "tcp", "app": "discord"}, ...]
+    ip_targets: List[Dict[str, Any]] = field(default_factory=list)
+
     # Стратегии из strategies.json
     strategies: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -71,6 +80,15 @@ class Config:
             self.auto_hostlist_file = str(self._base_dir / "data" / "zapret-hosts-auto.txt")
         if not self.zapret_src_dir:
             self.zapret_src_dir = str(self._base_dir / "zapret-src")
+
+        # Дефолтные IP-цели для Discord если не заданы
+        if not self.ip_targets:
+            self.ip_targets = [
+                # Discord API (Cloudflare)
+                {"ip": "162.159.128.0/24", "port": 443, "proto": "tcp", "app": "discord_api"},
+                # Discord Voice (i3D.net)
+                {"ip": "162.159.128.0/24", "port": "50000-50100", "proto": "udp", "app": "discord_voice"},
+            ]
 
     @classmethod
     @profiler

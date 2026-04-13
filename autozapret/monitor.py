@@ -28,6 +28,10 @@ class EventType(Enum):
     DOMAIN_NOT_ADDED = "domain_not_added"  # Домен не добавлен (дубликат)
     FAIL_RESET = "fail_reset"           # Сброс счётчика неудач
     UNKNOWN = "unknown"                 # Неизвестное событие
+    # IP события (для приложений без SNI)
+    IP_FAIL_COUNTER = "ip_fail_counter"      # IP fail counter
+    IP_DOMAIN_ADDED = "ip_domain_added"      # IP добавлен в список
+    IP_FAIL_RESET = "ip_fail_reset"          # IP fail reset
 
 
 @dataclass
