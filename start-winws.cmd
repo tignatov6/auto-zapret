@@ -43,8 +43,11 @@ echo [INFO] Starting winws with autohostlist...
 echo.
 
 REM Запуск winws
-REM --wf-tcp=* : перехватываем ВСЕ TCP соединения (не только 80/443)
-REM --wf-udp=* : перехватываем ВСЕ UDP соединения (нужно для Discord, игр и т.д.)
+REM --wf-tcp=* : перехватываем ВСЕ TCP соединения
+REM --wf-udp=* : перехватываем ВСЕ UDP соединения
+REM ВАЖНО: Перехват ≠ модификация!
+REM DPI модификации применяются ТОЛЬКО к доменам из --hostlist файлов.
+REM Остальной трафик идёт БЕЗ изменений.
 REM --hostlist-auto : файл куда nfqws пишет проблемные домены
 REM --hostlist-auto-fail-threshold : через сколько неудач добавлять
 REM --hostlist-auto-debug : лог событий
