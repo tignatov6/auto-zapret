@@ -43,7 +43,8 @@ echo [INFO] Starting winws with autohostlist...
 echo.
 
 REM Запуск winws
-REM --filter-tcp=443 : фильтруем только HTTPS (можно добавить 80 для HTTP)
+REM --wf-tcp=* : перехватываем ВСЕ TCP соединения (не только 80/443)
+REM --wf-udp=* : перехватываем ВСЕ UDP соединения (нужно для Discord, игр и т.д.)
 REM --hostlist-auto : файл куда nfqws пишет проблемные домены
 REM --hostlist-auto-fail-threshold : через сколько неудач добавлять
 REM --hostlist-auto-debug : лог событий
@@ -51,7 +52,8 @@ REM --new : поддержка нескольких стратегий
 REM --dpi-desync : стратегия по умолчанию для autohostlist
 
 start "WinWS Auto-Zapret" /B "%BINARIES%\winws.exe" ^
-  --wf-tcp=80,443 ^
+  --wf-tcp=* ^
+  --wf-udp=* ^
   --filter-tcp=443 ^
   --filter-tcp=80 ^
   --hostlist-auto="%AUTOHOSTLIST_FILE%" ^

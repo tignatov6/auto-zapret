@@ -634,15 +634,15 @@ class Executor:
         is_udp_strategy = 'ipfrag' in mode or 'hopbyhop' in mode or 'destopt' in mode
 
         # Базовые фильтры WinDivert
-        # ВАЖНО: Для TCP стратегий НЕ добавляем UDP фильтры!
-        # Это соответствует логике blockcheck.sh pktws_ipt_prepare_tcp()
-        # Лишние UDP фильтры создают конфликт при TCP тестировании
+        # ПЕРЕХВАТ ВСЕГО ТРАФИКА (не только 80/443)
+        # Это нужно для работы с приложениями типа Discord, которые используют
+        # другие порты (UDP 50000-50100 для голоса, TCP для WebSocket и т.д.)
         if is_quic or is_udp_strategy:
             # Только UDP для QUIC стратегий
-            cmd.append("--wf-udp=443")
+            cmd.append("--wf-udp=*")
         else:
-            # ТОЛЬКО TCP для обычных стратегий (как в blockcheck.sh)
-            cmd.append("--wf-tcp=80,443")
+            # ВСЕ TCP соединения (как в nfqws_config.py)
+            cmd.append("--wf-tcp=*")
 
         # Файлы фейков (если найдены)
         fake_quic, fake_tls, fake_http, fake_syndata = self._find_fake_files()

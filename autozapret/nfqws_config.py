@@ -129,11 +129,12 @@ class NfqwsConfigGenerator:
             args.append("--wf-l3=ipv4,ipv6")
         else:
             args.append("--wf-l3=ipv4")
-        
-        args.append("--wf-tcp=80,443")
-        
-        if include_quic:
-            args.append("--wf-udp=443")
+
+        # ПЕРЕХВАТ ВСЕГО ТРАФИКА (не только 80/443)
+        # Это нужно для работы с приложениями типа Discord, которые используют
+        # другие порты (UDP 50000-50100 для голоса, TCP для WebSocket и т.д.)
+        args.append("--wf-tcp=*")  # Все TCP соединения
+        args.append("--wf-udp=*")  # Все UDP соединения
         
         # 2. Файлы фейков (ищем в стандартных местах)
         fake_quic, fake_tls, fake_http, fake_syndata = self._find_fake_files()
