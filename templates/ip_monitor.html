@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}IP Monitor - Auto-Zapret{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-hdd-network"></i> IP Monitor</h2>
+    
+    <!-- Status Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="status-enabled">-</h3>
+                <p>Enabled</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="status-running">-</h3>
+                <p>Running</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="status-watched">-</h3>
+                <p>Watched IPs</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3 id="status-fails">-</h3>
+                <p>Active Fails</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- IP Targets -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="table-container">
+                <h5><i class="bi bi-list-check"></i> IP Targets</h5>
+                <table class="table table-hover" id="targets-table">
+                    <thead>
+                        <tr>
+                            <th>IP / CIDR</th>
+                            <th>Port</th>
+                            <th>Protocol</th>
+                            <th>Application</th>
+                        </tr>
+                    </thead>
+                    <tbody id="targets-body">
+                        <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Connections -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="bi bi-diagram-3"></i> Active TCP Connections</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadConnections()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-info" id="conn-total">0</span> Total
+                    <span class="badge bg-success" id="conn-established">0</span> ESTABLISHED
+                    <span class="badge bg-warning" id="conn-syn-sent">0</span> SYN_SENT
+                </div>
+                <table class="table table-hover table-sm" id="connections-table">
+                    <thead>
+                        <tr>
+                            <th>Local</th>
+                            <th>Remote</th>
+                            <th>State</th>
+                            <th>PID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="connections-body">
+                        <tr><td colspan="4" class="text-center">Click Refresh to load</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- IP Events Log -->
+    <div class="row">
+        <div class="col-12">
+            <div class="table-container">
+                <h5><i class="bi bi-journal-text"></i> IP Events Log</h5>
+                <table class="table table-hover table-sm" id="events-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>IP/Domain</th>
+                            <th>Counter</th>
+                            <th>App</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-body">
+                        <tr><td colspan="5" class="text-center">No events yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load IP Monitor status
+async function loadStatus() {
+    try {
+        const response = await fetch('/api/ip-monitor/status');
+        const data = await response.json();
+        
+        document.getElementById('status-enabled').innerHTML = data.enabled ? 
+            '<i class="bi bi-check-circle-fill text-success"></i>' : 
+            '<i class="bi bi-x-circle-fill text-danger"></i>';
+        document.getElementById('status-running').innerHTML = data.running ? 
+            '<i class="bi bi-check-circle-fill text-success"></i>' : 
+            '<i class="bi bi-x-circle-fill text-danger"></i>';
+        document.getElementById('status-watched').textContent = data.watched_ips || 0;
+        document.getElementById('status-fails').textContent = data.active_fail_counters || 0;
+    } catch (e) {
+        console.error('Failed to load status:', e);
+    }
+}
+
+// Load IP targets
+async function loadTargets() {
+    try {
+        const response = await fetch('/api/ip-monitor/targets');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('targets-body');
+        if (data.targets.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No targets configured</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.targets.map(t => `
+            <tr>
+                <td><code>${t.ip}</code></td>
+                <td>${t.port}</td>
+                <td><span class="badge bg-${t.proto === 'tcp' ? 'primary' : 'warning'}">${t.proto.toUpperCase()}</span></td>
+                <td>${t.app}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load targets:', e);
+    }
+}
+
+// Load TCP connections
+async function loadConnections() {
+    try {
+        const response = await fetch('/api/ip-monitor/connections');
+        const data = await response.json();
+        
+        document.getElementById('conn-total').textContent = data.total_connections;
+        document.getElementById('conn-established').textContent = 
+            data.connections.filter(c => c.state_name === 'ESTABLISHED').length;
+        document.getElementById('conn-syn-sent').textContent = 
+            data.connections.filter(c => c.state_name === 'SYN_SENT').length;
+        
+        const tbody = document.getElementById('connections-body');
+        if (data.connections.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No connections</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.connections.map(c => `
+            <tr class="${c.state_name === 'SYN_SENT' ? 'table-warning' : ''}">
+                <td><code>${c.local_ip}:${c.local_port}</code></td>
+                <td><code>${c.remote_ip}:${c.remote_port}</code></td>
+                <td><span class="badge bg-${c.state_name === 'ESTABLISHED' ? 'success' : 'warning'}">${c.state_name}</span></td>
+                <td>${c.pid}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load connections:', e);
+    }
+}
+
+// Load IP events
+async function loadEvents() {
+    try {
+        const response = await fetch('/api/ip-monitor/events');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('events-body');
+        if (data.events.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">No IP events yet</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.events.map(e => `
+            <tr>
+                <td>${new Date(e.timestamp).toLocaleTimeString()}</td>
+                <td><span class="badge bg-${e.type === 'ip_fail_counter' ? 'danger' : 'success'}">${e.type}</span></td>
+                <td><code>${e.domain || e.ip || '-'}</code></td>
+                <td>${e.counter || '-'}</td>
+                <td>${e.app || e.client || '-'}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load events:', e);
+    }
+}
+
+// Initial load
+loadStatus();
+loadTargets();
+loadConnections();
+loadEvents();
+
+// Auto-refresh every 5 seconds
+setInterval(loadStatus, 5000);
+setInterval(loadConnections, 5000);
+</script>
+{% endblock %}

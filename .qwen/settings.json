@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(learn.microsoft.com)",
+      "WebFetch(stackoverflow.com)",
+      "WebFetch(code.activestate.com)",
+      "WebFetch(gitlab.com)",
+      "WebFetch(github.com)"
+    ]
+  },
+  "$version": 3
+}

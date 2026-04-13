@@ -21,7 +21,6 @@ from .storage import Storage, Strategy, Domain, StatEvent
 from .executor import Executor
 from .analyzer import Analyzer, get_log_history, brute_force_progress, BruteForceStatus
 from .monitor import Monitor
-from .ip_monitor import IPMonitor, get_monitor as get_ip_monitor, IPEventType
 from .nfqws_config import get_generator, NfqwsConfigGenerator
 from .utils.profiler import get_profiler
 profiler = get_profiler("api")
@@ -71,6 +70,37 @@ class HealthResponse(BaseModel):
     timestamp: str
 
 
+class ApplyStrategyRequest(BaseModel):
+    domain: str
+    strategy_name: str
+
+
+class CheckDpiRequest(BaseModel):
+    domain: str
+
+
+class SimulateEventRequest(BaseModel):
+    domain: str
+    event_type: str = "fail_counter"
+    counter: int = 1
+    threshold: int = 3
+    protocol: str = "tcp"
+
+
+class ForceBruteforceRequest(BaseModel):
+    mode: str = "first_working"
+
+
+class SetBruteForceModeRequest(BaseModel):
+    mode: str
+    quick_mode: Optional[bool] = None
+    type: Optional[str] = None
+
+
+class RestartWinwsRequest(BaseModel):
+    pass  # No parameters needed, but allows POST with empty body
+
+
 # ==================== FastAPI App ====================
 
 @profiler
@@ -81,8 +111,8 @@ def create_app(config: Config = None):
         config = get_config()
     
     app = FastAPI(
-        title="Auto-Zapret API",
-        description="API для управления адаптивной мультистратегической маршрутизацией Zapret",
+        title="Auto-Zapret API (Zapret2)",
+        description="API для управления адаптивной мультистратегической маршрутизацией Zapret2",
         version="0.1.0"
     )
     
@@ -111,47 +141,47 @@ def create_app(config: Config = None):
         logger.info(f"NFQWS log: {config.nfqws_log_file}")
         logger.info(f"Hostlists dir: {config.hostlists_dir}")
         
-        logger.info("Connecting to database...")
+        logger.debug("Connecting to database...")
         await storage.connect()
-        logger.info("Database connected")
-        
+        logger.debug("Database connected")
+
         if config.strategies:
-            logger.info(f"Loading {len(config.strategies)} strategies from config...")
+            logger.debug(f"Loading {len(config.strategies)} strategies from config...")
             await storage.init_from_config(config.strategies)
-            logger.info(f"Loaded {len(config.strategies)} strategies")
-        
-        logger.info("Initializing NFQWS config generator...")
+            logger.debug(f"Loaded {len(config.strategies)} strategies")
+
+        logger.debug("Initializing NFQWS config generator...")
         nfqws_gen = get_generator(config)
         await nfqws_gen.initialize(storage)
         app.state.nfqws_generator = nfqws_gen
-        logger.info(f"NFQWS generator initialized ({len(config.strategies)} profiles)")
+        logger.debug("NFQWS generator initialized")
 
-        logger.info("Starting Monitor in background...")
+        logger.debug("Starting Monitor in background...")
         app.state.monitor_task = asyncio.create_task(monitor.start())
-        logger.info("Monitor started")
+        logger.debug("Monitor started")
 
         app.state.analyzer = analyzer
 
         # ═══════════════════════════════════════════════════════
-        # АВТОЗАПУСК WINWS ПРИ СТАРТЕ
-        # 1. Закрываем все существующие winws (даже запущенные вне Auto-Zapret)
-        # 2. Запускаем winws с сохраненными стратегиями
+        # АВТОЗАПУСК WINWS2 ПРИ СТАРТЕ
+        # 1. Закрываем все существующие winws2 (даже запущенные вне Auto-Zapret)
+        # 2. Запускаем winws2 с сохранёнными стратегиями
         # ═══════════════════════════════════════════════════════
         try:
-            logger.info("Checking for existing winws processes...")
-            
-            # Закрываем ВСЕ процессы winws (даже если запущены не через Auto-Zapret)
+            logger.info("Checking for existing winws2 processes...")
+
+            # Закрываем ВСЕ процессы winws2 (даже если запущены не через Auto-Zapret)
             await executor.stop_winws()
-            
-            logger.info("Starting winws with saved strategies...")
+
+            logger.info("Starting winws2 with saved strategies...")
             success, msg = await executor.restart_winws_full(app.state.nfqws_generator)
-            
+
             if success:
-                logger.info("✅ WinWS started with saved strategies")
+                logger.info("✅ WinWS2 started with saved strategies")
             else:
-                logger.warning(f"Failed to start WinWS: {msg}")
+                logger.warning(f"Failed to start WinWS2: {msg}")
         except Exception as e:
-            logger.warning(f"Failed to auto-start WinWS: {e}")
+            logger.warning(f"Failed to auto-start WinWS2: {e}")
 
         logger.info("=" * 60)
         logger.info("Auto-Zapret API started (Monitor running)")
@@ -160,21 +190,21 @@ def create_app(config: Config = None):
     @profiler
     async def _ensure_winws_running():
         """
-        Проверка запущен ли winws.
-        
-        ПРИМЕЧАНИЕ: Автозапуск winws выполняется в main.run() при старте приложения.
-        Эта функция только проверяет статус и логирует предупреждение если winws не запущен.
-        """
-        logger.info("Checking if winws is running...")
+        Проверка запущен ли winws2.
 
-        # Проверяем запущен ли winws
+        ПРИМЕЧАНИЕ: Автозапуск winws2 выполняется в main.run() при старте приложения.
+        Эта функция только проверяет статус и логирует предупреждение если winws2 не запущен.
+        """
+        logger.info("Checking if winws2 is running...")
+
+        # Проверяем запущен ли winws2
         winws_pid = executor._find_nfqws_pid()
 
         if winws_pid is None:
-            logger.warning("winws is not running. It should be started by main.run() at startup.")
-            logger.warning("If winws is still not running, strategies will be started on-demand when needed.")
+            logger.warning("winws2 is not running. It should be started by main.run() at startup.")
+            logger.warning("If winws2 is still not running, strategies will be started on-demand when needed.")
         else:
-            logger.info(f"winws is already running (PID: {winws_pid})")
+            logger.info(f"winws2 is already running (PID: {winws_pid})")
 
     @app.on_event("shutdown")
     @profiler
@@ -200,9 +230,9 @@ def create_app(config: Config = None):
             await app.state.analyzer.shutdown()
         logger.info("Analyzer shutdown complete")
 
-        logger.info("Stopping winws...")
+        logger.info("Stopping winws2...")
         await executor.stop_winws()
-        logger.info("winws stopped")
+        logger.info("winws2 stopped")
 
         logger.info("Closing database connection...")
         await storage.close()
@@ -265,25 +295,25 @@ def create_app(config: Config = None):
         valid, error = nfqws_gen.validate_params(strategy.zapret_params)
         if not valid:
             raise HTTPException(status_code=400, detail=error)
-        
+
         # Используем новый метод с возвратом статуса
-        strategy_id, was_created = await storage.create_strategy(
+        result = await storage.create_strategy(
             name=strategy.name,
             params=strategy.zapret_params,
             description=strategy.description
         )
-        
-        if was_created:
+
+        if result.was_created:
             # Обновляем nfqws профиль
-            strat_obj = await storage.get_strategy_by_id(strategy_id)
+            strat_obj = await storage.get_strategy_by_id(result.strategy_id)
             if strat_obj:
                 await nfqws_gen.update_profile(strat_obj)
-            
+
             # Генерируем startup script
             script_path = os.path.join(config.data_dir, "start-nfqws-auto.cmd")
             nfqws_gen.generate_windows_batch(script_path)
-            
-            return {"id": strategy_id, "message": f"Strategy '{strategy.name}' created"}
+
+            return {"id": result.strategy_id, "message": f"Strategy '{strategy.name}' created"}
         else:
             # Стратегия уже существует (по имени или params)
             existing = await storage.get_strategy(strategy.name)
@@ -607,17 +637,17 @@ def create_app(config: Config = None):
 
     @app.post("/api/actions/apply-strategy")
     @profiler
-    async def apply_strategy(domain: str, strategy_name: str):
+    async def apply_strategy(req: ApplyStrategyRequest):
         """Применение стратегии к домену"""
         # Проверяем существование стратегии
-        strategy = await storage.get_strategy(strategy_name)
+        strategy = await storage.get_strategy(req.strategy_name)
         if not strategy:
             raise HTTPException(status_code=404, detail="Strategy not found")
-        
-        success, msg = await executor.apply_strategy(domain, strategy_name)
+
+        success, msg = await executor.apply_strategy(req.domain, req.strategy_name)
         if success:
             # Применяем через executor (идемпотентно) и записываем в БД
-            await storage.assign_domain(domain, strategy.id)
+            await storage.assign_domain(req.domain, strategy.id)
             return {"success": True, "message": msg}
         else:
             raise HTTPException(status_code=500, detail=msg)
@@ -675,9 +705,9 @@ def create_app(config: Config = None):
 
     @app.post("/api/actions/check-dpi")
     @profiler
-    async def check_dpi(domain: str):
+    async def check_dpi(req: CheckDpiRequest):
         """Ручная проверка домена на DPI блокировку"""
-        result = await analyzer.dpi_detector.check_domain(domain, timeout=60)
+        result = await analyzer.dpi_detector.check_domain(req.domain, timeout=60)
         return result.to_dict()
 
     @app.get("/api/actions/check-dpi")
@@ -689,37 +719,37 @@ def create_app(config: Config = None):
     
     @app.post("/api/actions/simulate-event")
     @profiler
-    async def simulate_event(domain: str, event_type: str = "fail_counter", counter: int = 1, threshold: int = 3, protocol: str = "TLS"):
+    async def simulate_event(req: SimulateEventRequest):
         """Симуляция события autohostlist для тестирования"""
         from .monitor import AutoHostlistEvent, EventType
         from .analyzer import add_log_entry
 
         # Преобразуем event_type в Enum, используя UNKNOWN для неизвестных типов
         try:
-            event_type_enum = EventType(event_type)
+            event_type_enum = EventType(req.event_type)
         except ValueError:
             event_type_enum = EventType.UNKNOWN
 
         event = AutoHostlistEvent(
             event_type=event_type_enum,
-            domain=domain,
+            domain=req.domain,
             profile_id=1,
             client="192.168.1.100:54321",
-            protocol=protocol,
-            fail_counter=counter,
-            fail_threshold=threshold
+            protocol=req.protocol,
+            fail_counter=req.counter,
+            fail_threshold=req.threshold
         )
 
         # Добавляем в лог
         await add_log_entry({
-            "type": event_type,
-            "domain": domain,
-            "counter": counter,
-            "threshold": threshold,
-            "message": f"Simulated: {event_type} {counter}/{threshold} ({protocol})",
+            "type": req.event_type,
+            "domain": req.domain,
+            "counter": req.counter,
+            "threshold": req.threshold,
+            "message": f"Simulated: {req.event_type} {req.counter}/{req.threshold} ({req.protocol})",
             "client": event.client,
             "profile": event.profile_id,
-            "protocol": protocol
+            "protocol": req.protocol
         })
 
         # Реально обрабатываем событие через analyzer (только если это известный тип)
@@ -730,7 +760,7 @@ def create_app(config: Config = None):
 
     @app.post("/api/actions/force-bruteforce/{domain}")
     @profiler
-    async def force_bruteforce(domain: str, mode: str = "first_working"):
+    async def force_bruteforce(domain: str, req: ForceBruteforceRequest):
         """
         Принудительный запуск брутфорса для домена
 
@@ -754,19 +784,19 @@ def create_app(config: Config = None):
 
         # Временно меняем режим в конфиге
         old_mode = analyzer.config.brute_force_mode
-        analyzer.config.brute_force_mode = mode
+        analyzer.config.brute_force_mode = req.mode
 
         try:
             # Запускаем брутфорс напрямую
-            logger.info(f"[api] Force brute force for {domain} (mode={mode})")
+            logger.info(f"[api] Force brute force for {domain} (mode={req.mode})")
 
             # Добавляем лог
             from .analyzer import add_log_entry
             await add_log_entry({
                 "type": "force_bruteforce",
                 "domain": domain,
-                "mode": mode,
-                "message": f"🚀 Запущен принудительный брутфорс для {domain} (mode={mode})"
+                "mode": req.mode,
+                "message": f"🚀 Запущен принудительный брутфорс для {domain} (mode={req.mode})"
             })
 
             # Вызываем brute force напрямую
@@ -786,11 +816,12 @@ def create_app(config: Config = None):
                 else:
                     # Создаём новую стратегию с уникальным именем
                     strategy_name = f"strategy_{uuid4().hex[:12]}"
-                    strategy_id, was_created = await storage.create_strategy(
+                    result = await storage.create_strategy(
                         name=strategy_name,
                         params=bf_result.params,
                         description=bf_result.description or "Auto-created strategy (force bruteforce)"
                     )
+                    strategy_id = result.strategy_id
                     logger.info(f"[api] Created new strategy {strategy_name} for {domain}")
 
                 # Применяем стратегию к домену
@@ -999,142 +1030,41 @@ def create_app(config: Config = None):
         """Получение текущего режима брутфорса"""
         return {
             "mode": analyzer.config.brute_force_mode,
-            "quick_mode": analyzer.config.brute_force_quick_mode
+            "quick_mode": analyzer.config.brute_force_quick_mode,
+            "type": getattr(analyzer.config, 'brute_force_type', 'aggregated'),
+            "type_options": ["aggregated", "exact"]
         }
 
     @app.post("/api/config/brute-force-mode")
     @profiler
-    async def set_brute_force_mode(mode: str, quick_mode: bool = None):
+    async def set_brute_force_mode(req: SetBruteForceModeRequest):
         """
         Установка режима брутфорса
-        
+
         Args:
             mode: "first_working" или "all_best"
             quick_mode: True/False для быстрого режима
-        
+            type: "aggregated" (~398) или "exact" (~19356)
+
         Returns:
-            {"success": True, "mode": "...", "quick_mode": True/False}
+            {"success": True, "mode": "...", "quick_mode": True/False, "type": "..."}
         """
-        if mode not in ["first_working", "all_best"]:
+        if req.mode not in ["first_working", "all_best"]:
             return {"success": False, "error": "Неверный режим. Используйте 'first_working' или 'all_best'"}
-        
-        analyzer.config.brute_force_mode = mode
-        if quick_mode is not None:
-            analyzer.config.brute_force_quick_mode = quick_mode
-        
-        logger.info(f"[api] Brute force mode changed to {mode} (quick_mode={analyzer.config.brute_force_quick_mode})")
-        
+
+        analyzer.config.brute_force_mode = req.mode
+        if req.quick_mode is not None:
+            analyzer.config.brute_force_quick_mode = req.quick_mode
+        if req.type is not None and req.type in ["aggregated", "exact"]:
+            analyzer.config.brute_force_type = req.type
+
+        logger.info(f"[api] Brute force mode: {req.mode}, quick_mode={analyzer.config.brute_force_quick_mode}, type={getattr(analyzer.config, 'brute_force_type', 'aggregated')}")
+
         return {
             "success": True,
-            "mode": mode,
-            "quick_mode": analyzer.config.brute_force_quick_mode
-        }
-
-    # ==================== IP Monitor API ====================
-
-    @app.get("/api/ip-monitor/status")
-    @profiler
-    async def ip_monitor_status():
-        """Статус IP Monitor"""
-        if not hasattr(analyzer, 'ip_monitor') or analyzer.ip_monitor is None:
-            return {
-                "enabled": False,
-                "running": False,
-                "message": "IP Monitor not initialized"
-            }
-        
-        ip_monitor: IPMonitor = analyzer.ip_monitor
-        
-        return {
-            "enabled": config.ip_monitor_enabled,
-            "running": ip_monitor._running,
-            "watched_ips": len(ip_monitor._watched_ips),
-            "active_fail_counters": len(ip_monitor._fail_counters),
-            "dns_cache_size": len(ip_monitor._dns_cache),
-            "config": {
-                "interval": config.ip_monitor_interval,
-                "fail_threshold": config.ip_monitor_fail_threshold,
-                "retrans_threshold": config.ip_monitor_retrans_threshold,
-            }
-        }
-
-    @app.get("/api/ip-monitor/targets")
-    @profiler
-    async def ip_monitor_targets():
-        """Список IP целей для мониторинга"""
-        return {
-            "targets": config.ip_targets,
-            "count": len(config.ip_targets)
-        }
-
-    @app.get("/api/ip-monitor/connections")
-    @profiler
-    async def ip_monitor_connections():
-        """Активные TCP соединения (для debugging)"""
-        from .ip_monitor import get_tcp_connections, MIB_TCP_STATE_ESTAB, MIB_TCP_STATE_SYN_SENT
-        
-        connections = get_tcp_connections()
-        
-        # Фильтруем только ESTABLISHED и SYN_SENT
-        filtered = [
-            c for c in connections 
-            if c['state'] in (MIB_TCP_STATE_ESTAB, MIB_TCP_STATE_SYN_SENT)
-        ]
-        
-        # Добавляем human-readable state
-        state_names = {
-            MIB_TCP_STATE_ESTAB: "ESTABLISHED",
-            MIB_TCP_STATE_SYN_SENT: "SYN_SENT",
-        }
-        
-        for c in filtered:
-            c['state_name'] = state_names.get(c['state'], f"UNKNOWN({c['state']})")
-        
-        return {
-            "total_connections": len(connections),
-            "filtered_connections": len(filtered),
-            "connections": filtered[:100]  # Limit to 100
-        }
-
-    @app.get("/api/ip-monitor/events")
-    @profiler
-    async def ip_monitor_events(limit: int = 50):
-        """Последние IP события из логов"""
-        from .analyzer import get_log_history
-        
-        logs = get_log_history(limit=limit)
-        ip_events = [
-            log for log in logs 
-            if log.get('type', '').startswith('ip_') or 'ip:' in log.get('domain', '')
-        ]
-        
-        return {
-            "count": len(ip_events),
-            "events": ip_events
-        }
-
-    @app.post("/api/ip-monitor/test")
-    @profiler
-    async def ip_monitor_test():
-        """
-        Тест IP Monitor - проверяет работоспособность API
-        
-        Returns список активных TCP соединений Discord
-        """
-        from .ip_monitor import get_tcp_connections
-        
-        connections = get_tcp_connections()
-        
-        # Фильтруем Discord IP range
-        discord_conns = [
-            c for c in connections 
-            if c['remote_ip'].startswith('162.159.')
-        ]
-        
-        return {
-            "total_tcp_connections": len(connections),
-            "discord_connections": len(discord_conns),
-            "discord_connections": discord_conns[:20]
+            "mode": req.mode,
+            "quick_mode": analyzer.config.brute_force_quick_mode,
+            "type": getattr(analyzer.config, 'brute_force_type', 'aggregated')
         }
 
     # ==================== Web UI ====================
@@ -1188,13 +1118,6 @@ def create_app(config: Config = None):
                 }
                 for e in events
             ]
-        })
-
-    @app.get("/ip-monitor", response_class=HTMLResponse)
-    async def ip_monitor_page(request: Request):
-        """Страница IP Monitor"""
-        return templates.TemplateResponse("ip_monitor.html", {
-            "request": request,
         })
     
     return app
