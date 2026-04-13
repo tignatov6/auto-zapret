@@ -10,6 +10,7 @@ import ctypes
 import ctypes.wintypes
 import ipaddress
 import logging
+import os
 import socket
 import struct
 import time
@@ -102,7 +103,7 @@ def get_tcp_connections() -> List[Dict[str, Any]]:
     Returns:
         Список dict с информацией о соединениях
     """
-    if ctypes.os.name != 'nt':
+    if os.name != 'nt':
         return []
     
     try:
@@ -174,7 +175,7 @@ def get_tcp_statistics() -> Dict[str, int]:
     Returns:
         Dict с dwRetransSegs, dwAttemptFails, и т.д.
     """
-    if ctypes.os.name != 'nt':
+    if os.name != 'nt':
         return {}
     
     try:
