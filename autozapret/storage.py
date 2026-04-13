@@ -28,6 +28,10 @@ class Strategy:
     params_canonical: str = ""  # Canonical форма параметров
     priority: int = 99  # Для сортировки при проверке
     created_at: Optional[str] = None
+    # Поля для совместимости с autozapret2 (не используются в v1)
+    payload: Optional[str] = None  # "tls_client_hello", "http_req", "quic_initial"
+    lua_desync: Optional[str] = None  # Lua desync параметры
+    blob: Optional[str] = None  # Blob данные
     # Статистика
     domains_count: int = 0  # Сколько доменов использует эту стратегию
     success_rate: float = 0.0  # 0.0 - 1.0
